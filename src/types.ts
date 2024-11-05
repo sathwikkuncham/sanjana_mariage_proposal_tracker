@@ -46,4 +46,5 @@ export interface Proposal {
   parentDetails: ParentDetails;
   socialMedia?: SocialMedia;
   documents: Document[];
+  comments?: string;
 }

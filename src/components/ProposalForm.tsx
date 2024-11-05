@@ -38,7 +38,8 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onClose, onSubmit, proposal
       commission: ''
     },
     socialMedia: {},
-    documents: []
+    documents: [],
+    comments: ''
   });
 
   useEffect(() => {
@@ -304,6 +305,18 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onClose, onSubmit, proposal
               <DocumentUpload
                 documents={formData.documents || []}
                 onDocumentsChange={(docs) => setFormData(prev => ({ ...prev, documents: docs }))}
+              />
+            </div>
+
+            {/* Comments */}
+            <div>
+              <h4 className="text-lg font-medium text-gray-900 mb-4">Comments</h4>
+              <textarea
+                name="comments"
+                value={formData.comments}
+                onChange={handleChange}
+                rows={3}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               />
             </div>
 

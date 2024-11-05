@@ -7,8 +7,6 @@ import ProposalForm from './components/ProposalForm';
 import { Proposal, Status, Source } from './types';
 import { initialProposals } from './data';
 
-const users = ['Sathwik', 'Sanjana', 'Anil', 'Bindu'];
-
 function App() {
   const [proposals, setProposals] = useState<Proposal[]>(initialProposals);
   const [showForm, setShowForm] = useState(false);
@@ -26,12 +24,7 @@ function App() {
     direction: 'asc' | 'desc';
   } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [currentUser, setCurrentUser] = useState<string | null>(null);
   const proposalsPerPage = 5;
-
-  useEffect(() => {
-    setCurrentUser('Sanjana'); // Set a default user or handle it as needed
-  }, []);
 
   const filterProposals = (proposals: Proposal[]) => {
     return proposals.filter(proposal => {
@@ -75,7 +68,7 @@ function App() {
 
   const handleStatusChange = (id: string, status: Status) => {
     setProposals(proposals.map(p => 
-      p.id === id ? { ...p, status: { ...p.status, [currentUser]: status } } : p
+      p.id === id ? { ...p, status } : p
     ));
   };
 
@@ -132,7 +125,6 @@ function App() {
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-semibold text-gray-900">Sanjana Marriage Proposal Tracker</h1>
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-700">Logged in as: {currentUser}</span>
                 <button
                   onClick={() => setShowForm(true)}
                   className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors"
@@ -256,7 +248,8 @@ function App() {
                     { key: 'status', label: 'Status' },
                     { key: 'age', label: 'Age' },
                     { key: 'occupation', label: 'Occupation' },
-                    { key: 'location', label: 'Location' }
+                    { key: 'location', label: 'Location' },
+                    { key: 'comments', label: 'Comments' } // Add Comments column
                   ].map(({ key, label }) => (
                     <th
                       key={key}
@@ -297,13 +290,14 @@ function App() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(proposal.status[currentUser])}`}>
-                        {proposal.status[currentUser]}
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(proposal.status)}`}>
+                        {proposal.status}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{proposal.age}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{proposal.occupation}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{proposal.location}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{proposal.comments}</td> {/* Add Comments data */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-3">
                         <button
