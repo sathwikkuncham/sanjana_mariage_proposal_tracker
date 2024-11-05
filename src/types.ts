@@ -1,6 +1,14 @@
 export type Source = 'WhatsApp' | 'Phone' | 'Broker' | 'Relative';
 export type Status = 'Pending' | 'Accepted' | 'Rejected' | 'On Hold';
 
+export type Nakshatra = 
+  'Ashwini' | 'Bharani' | 'Krittika' | 'Rohini' | 'Mrigashira' | 'Ardra' | 'Punarvasu' | 'Pushya' | 'Ashlesha' |
+  'Magha' | 'Purva Phalguni' | 'Uttara Phalguni' | 'Hasta' | 'Chitra' | 'Swati' | 'Vishakha' | 'Anuradha' | 'Jyeshtha' |
+  'Moola' | 'Purva Ashadha' | 'Uttara Ashadha' | 'Shravana' | 'Dhanishta' | 'Shatabhisha' | 'Purva Bhadrapada' | 'Uttara Bhadrapada' | 'Revati';
+
+export type Rashi = 
+  'Mesha' | 'Vrishabha' | 'Mithuna' | 'Kataka' | 'Simha' | 'Kanya' | 'Thula' | 'Vrischika' | 'Dhanush' | 'Makara' | 'Kumbha' | 'Meena';
+
 export interface SocialMedia {
   linkedin?: string;
   instagram?: string;
@@ -49,8 +57,8 @@ export interface Proposal {
   comments?: string;
   sourceContactName?: string;
   sourceContactNumber?: string;
-  nakshatra?: string;
-  rashi?: string;
+  nakshatra?: Nakshatra;
+  rashi?: Rashi;
   income?: string;
   siblings?: string;
   familyName?: string;

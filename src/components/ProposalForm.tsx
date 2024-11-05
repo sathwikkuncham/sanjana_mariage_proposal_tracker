@@ -1,8 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { Proposal, Source, Status, SocialMedia, ParentDetails, BrokerDetails } from '../types';
+import { Proposal, Source, Status, SocialMedia, ParentDetails, BrokerDetails, Nakshatra, Rashi } from '../types';
 import DocumentUpload from './DocumentUpload';
 import SocialMediaLinks from './SocialMediaLinks';
+
+const nakshatras: Nakshatra[] = [
+  'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira', 'Ardra', 'Punarvasu', 'Pushya', 'Ashlesha',
+  'Magha', 'Purva Phalguni', 'Uttara Phalguni', 'Hasta', 'Chitra', 'Swati', 'Vishakha', 'Anuradha', 'Jyeshtha',
+  'Moola', 'Purva Ashadha', 'Uttara Ashadha', 'Shravana', 'Dhanishta', 'Shatabhisha', 'Purva Bhadrapada', 'Uttara Bhadrapada', 'Revati'
+];
+
+const rashis: Rashi[] = [
+  'Mesha', 'Vrishabha', 'Mithuna', 'Kataka', 'Simha', 'Kanya', 'Thula', 'Vrischika', 'Dhanush', 'Makara', 'Kumbha', 'Meena'
+];
 
 interface ProposalFormProps {
   onClose: () => void;
@@ -213,23 +223,31 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onClose, onSubmit, proposal
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Nakshatra</label>
-                  <input
-                    type="text"
+                  <select
                     name="nakshatra"
                     value={formData.nakshatra}
                     onChange={handleChange}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  />
+                  >
+                    <option value="">Select Nakshatra</option>
+                    {nakshatras.map(nakshatra => (
+                      <option key={nakshatra} value={nakshatra}>{nakshatra}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Rashi</label>
-                  <input
-                    type="text"
+                  <select
                     name="rashi"
                     value={formData.rashi}
                     onChange={handleChange}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  />
+                  >
+                    <option value="">Select Rashi</option>
+                    {rashis.map(rashi => (
+                      <option key={rashi} value={rashi}>{rashi}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Income</label>
