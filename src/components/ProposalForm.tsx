@@ -41,7 +41,14 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onClose, onSubmit, proposal
     documents: [],
     comments: '',
     sourceContactName: '',
-    sourceContactNumber: ''
+    sourceContactNumber: '',
+    nakshatra: '',
+    rashi: '',
+    income: '',
+    siblings: '',
+    familyName: '',
+    kundliChart: '',
+    dobWithTime: ''
   });
 
   useEffect(() => {
@@ -200,6 +207,76 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onClose, onSubmit, proposal
                     type="text"
                     name="sourceContactNumber"
                     value={formData.sourceContactNumber}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Nakshatra</label>
+                  <input
+                    type="text"
+                    name="nakshatra"
+                    value={formData.nakshatra}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Rashi</label>
+                  <input
+                    type="text"
+                    name="rashi"
+                    value={formData.rashi}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Income</label>
+                  <input
+                    type="text"
+                    name="income"
+                    value={formData.income}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Siblings</label>
+                  <input
+                    type="text"
+                    name="siblings"
+                    value={formData.siblings}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Family Name</label>
+                  <input
+                    type="text"
+                    name="familyName"
+                    value={formData.familyName}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Kundli Chart URL</label>
+                  <input
+                    type="url"
+                    name="kundliChart"
+                    value={formData.kundliChart}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Date of Birth with Time</label>
+                  <input
+                    type="datetime-local"
+                    name="dobWithTime"
+                    value={formData.dobWithTime}
                     onChange={handleChange}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                   />

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Search, Plus, Filter, ArrowUpDown, Heart, Phone, MessageCircle, Users,
-  Check, X, PauseCircle, Edit2, Download
+  Check, X, PauseCircle, Edit2, Download, Clock
 } from 'lucide-react';
 import ProposalForm from './components/ProposalForm';
 import { Proposal, Status, Source } from './types';
@@ -28,6 +28,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const proposalsPerPage = 5;
   const observer = useRef<IntersectionObserver | null>(null);
+  const [expandedProposalId, setExpandedProposalId] = useState<string | null>(null);
 
   const filterProposals = (proposals: Proposal[]) => {
     return proposals.filter(proposal => {
@@ -96,9 +97,10 @@ function App() {
 
   const getStatusColor = (status: Status) => {
     switch (status) {
-      case 'Pending': return 'bg-yellow-100 text-yellow-800';
+      case 'In Progress': return 'bg-blue-100 text-blue-800';
       case 'Accepted': return 'bg-green-100 text-green-800';
       case 'Rejected': return 'bg-red-100 text-red-800';
+      case 'On Hold': return 'bg-yellow-100 text-yellow-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -122,60 +124,64 @@ function App() {
 
   const exportProposalAsCard = (proposal: Proposal) => {
     const pdf = new jsPDF();
+    pdf.setFontSize(16);
+    pdf.setTextColor(40);
+    pdf.text(`Proposal Details`, 10, 10);
     pdf.setFontSize(12);
-    pdf.text(`Name: ${proposal.name}`, 10, 10);
-    pdf.text(`Email: ${proposal.email}`, 10, 20);
-    pdf.text(`Age: ${proposal.age}`, 10, 30);
-    pdf.text(`Occupation: ${proposal.occupation}`, 10, 40);
-    pdf.text(`Location: ${proposal.location}`, 10, 50);
-    pdf.text(`Source: ${proposal.source}`, 10, 60);
-    pdf.text(`Status: ${proposal.status}`, 10, 70);
-    pdf.text(`Notes: ${proposal.notes}`, 10, 80);
-    pdf.text(`Expectations: ${proposal.expectations}`, 10, 90);
-    pdf.text(`Family Background: ${proposal.familyBackground}`, 10, 100);
-    pdf.text(`Education: ${proposal.education}`, 10, 110);
-    pdf.text(`Contact Info: ${proposal.contactInfo}`, 10, 120);
+    pdf.setTextColor(0);
+    pdf.text(`Name: ${proposal.name}`, 10, 20);
+    pdf.text(`Email: ${proposal.email}`, 10, 30);
+    pdf.text(`Age: ${proposal.age}`, 10, 40);
+    pdf.text(`Occupation: ${proposal.occupation}`, 10, 50);
+    pdf.text(`Location: ${proposal.location}`, 10, 60);
+    pdf.text(`Source: ${proposal.source}`, 10, 70);
+    pdf.text(`Status: ${proposal.status}`, 10, 80);
+    pdf.text(`Notes: ${proposal.notes}`, 10, 90);
+    pdf.text(`Expectations: ${proposal.expectations}`, 10, 100);
+    pdf.text(`Family Background: ${proposal.familyBackground}`, 10, 110);
+    pdf.text(`Education: ${proposal.education}`, 10, 120);
+    pdf.text(`Contact Info: ${proposal.contactInfo}`, 10, 130);
     if (proposal.alternateContact) {
-      pdf.text(`Alternate Contact: ${proposal.alternateContact}`, 10, 130);
+      pdf.text(`Alternate Contact: ${proposal.alternateContact}`, 10, 140);
     }
     if (proposal.sourceContactName) {
-      pdf.text(`Source Contact Name: ${proposal.sourceContactName}`, 10, 140);
+      pdf.text(`Source Contact Name: ${proposal.sourceContactName}`, 10, 150);
     }
     if (proposal.sourceContactNumber) {
-      pdf.text(`Source Contact Number: ${proposal.sourceContactNumber}`, 10, 150);
+      pdf.text(`Source Contact Number: ${proposal.sourceContactNumber}`, 10, 160);
     }
-    pdf.text(`Parent Details:`, 10, 160);
-    pdf.text(`  Father's Name: ${proposal.parentDetails.fatherName}`, 10, 170);
-    pdf.text(`  Father's Occupation: ${proposal.parentDetails.fatherOccupation}`, 10, 180);
-    pdf.text(`  Mother's Name: ${proposal.parentDetails.motherName}`, 10, 190);
-    pdf.text(`  Mother's Occupation: ${proposal.parentDetails.motherOccupation}`, 10, 200);
+    pdf.text(`Parent Details:`, 10, 170);
+    pdf.text(`  Father's Name: ${proposal.parentDetails.fatherName}`, 10, 180);
+    pdf.text(`  Father's Occupation: ${proposal.parentDetails.fatherOccupation}`, 10, 190);
+    pdf.text(`  Mother's Name: ${proposal.parentDetails.motherName}`, 10, 200);
+    pdf.text(`  Mother's Occupation: ${proposal.parentDetails.motherOccupation}`, 10, 210);
     if (proposal.brokerDetails) {
-      pdf.text(`Broker Details:`, 10, 210);
-      pdf.text(`  Name: ${proposal.brokerDetails.name}`, 10, 220);
-      pdf.text(`  Contact Number: ${proposal.brokerDetails.contactNumber}`, 10, 230);
+      pdf.text(`Broker Details:`, 10, 220);
+      pdf.text(`  Name: ${proposal.brokerDetails.name}`, 10, 230);
+      pdf.text(`  Contact Number: ${proposal.brokerDetails.contactNumber}`, 10, 240);
       if (proposal.brokerDetails.agency) {
-        pdf.text(`  Agency: ${proposal.brokerDetails.agency}`, 10, 240);
+        pdf.text(`  Agency: ${proposal.brokerDetails.agency}`, 10, 250);
       }
       if (proposal.brokerDetails.commission) {
-        pdf.text(`  Commission: ${proposal.brokerDetails.commission}`, 10, 250);
+        pdf.text(`  Commission: ${proposal.brokerDetails.commission}`, 10, 260);
       }
     }
-    pdf.text(`Social Media:`, 10, 260);
+    pdf.text(`Social Media:`, 10, 270);
     if (proposal.socialMedia?.linkedin) {
-      pdf.text(`  LinkedIn: ${proposal.socialMedia.linkedin}`, 10, 270);
+      pdf.text(`  LinkedIn: ${proposal.socialMedia.linkedin}`, 10, 280);
     }
     if (proposal.socialMedia?.instagram) {
-      pdf.text(`  Instagram: ${proposal.socialMedia.instagram}`, 10, 280);
+      pdf.text(`  Instagram: ${proposal.socialMedia.instagram}`, 10, 290);
     }
     if (proposal.socialMedia?.facebook) {
-      pdf.text(`  Facebook: ${proposal.socialMedia.facebook}`, 10, 290);
+      pdf.text(`  Facebook: ${proposal.socialMedia.facebook}`, 10, 300);
     }
-    pdf.text(`Documents:`, 10, 300);
+    pdf.text(`Documents:`, 10, 310);
     proposal.documents.forEach((doc, index) => {
-      pdf.text(`  ${doc.type}: ${doc.name} (${doc.url})`, 10, 310 + index * 10);
+      pdf.text(`  ${doc.type}: ${doc.name} (${doc.url})`, 10, 320 + index * 10);
     });
     if (proposal.comments) {
-      pdf.text(`Comments: ${proposal.comments}`, 10, 320 + proposal.documents.length * 10);
+      pdf.text(`Comments: ${proposal.comments}`, 10, 330 + proposal.documents.length * 10);
     }
     pdf.save(`${proposal.name}_proposal.pdf`);
   };
@@ -183,18 +189,72 @@ function App() {
   const exportAllProposalsAsPDF = () => {
     const pdf = new jsPDF();
     filteredAndSortedProposals.forEach((proposal, index) => {
-      const element = document.getElementById(`proposal-card-${proposal.id}`);
-      if (element) {
-        html2canvas(element).then(canvas => {
-          const imgData = canvas.toDataURL('image/png');
-          if (index > 0) pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 10, 10);
-          if (index === filteredAndSortedProposals.length - 1) {
-            pdf.save('proposals.pdf');
-          }
-        });
+      if (index > 0) pdf.addPage();
+      pdf.setFontSize(16);
+      pdf.setTextColor(40);
+      pdf.text(`Proposal Details`, 10, 10);
+      pdf.setFontSize(12);
+      pdf.setTextColor(0);
+      pdf.text(`Name: ${proposal.name}`, 10, 20);
+      pdf.text(`Email: ${proposal.email}`, 10, 30);
+      pdf.text(`Age: ${proposal.age}`, 10, 40);
+      pdf.text(`Occupation: ${proposal.occupation}`, 10, 50);
+      pdf.text(`Location: ${proposal.location}`, 10, 60);
+      pdf.text(`Source: ${proposal.source}`, 10, 70);
+      pdf.text(`Status: ${proposal.status}`, 10, 80);
+      pdf.text(`Notes: ${proposal.notes}`, 10, 90);
+      pdf.text(`Expectations: ${proposal.expectations}`, 10, 100);
+      pdf.text(`Family Background: ${proposal.familyBackground}`, 10, 110);
+      pdf.text(`Education: ${proposal.education}`, 10, 120);
+      pdf.text(`Contact Info: ${proposal.contactInfo}`, 10, 130);
+      if (proposal.alternateContact) {
+        pdf.text(`Alternate Contact: ${proposal.alternateContact}`, 10, 140);
+      }
+      if (proposal.sourceContactName) {
+        pdf.text(`Source Contact Name: ${proposal.sourceContactName}`, 10, 150);
+      }
+      if (proposal.sourceContactNumber) {
+        pdf.text(`Source Contact Number: ${proposal.sourceContactNumber}`, 10, 160);
+      }
+      pdf.text(`Parent Details:`, 10, 170);
+      pdf.text(`  Father's Name: ${proposal.parentDetails.fatherName}`, 10, 180);
+      pdf.text(`  Father's Occupation: ${proposal.parentDetails.fatherOccupation}`, 10, 190);
+      pdf.text(`  Mother's Name: ${proposal.parentDetails.motherName}`, 10, 200);
+      pdf.text(`  Mother's Occupation: ${proposal.parentDetails.motherOccupation}`, 10, 210);
+      if (proposal.brokerDetails) {
+        pdf.text(`Broker Details:`, 10, 220);
+        pdf.text(`  Name: ${proposal.brokerDetails.name}`, 10, 230);
+        pdf.text(`  Contact Number: ${proposal.brokerDetails.contactNumber}`, 10, 240);
+        if (proposal.brokerDetails.agency) {
+          pdf.text(`  Agency: ${proposal.brokerDetails.agency}`, 10, 250);
+        }
+        if (proposal.brokerDetails.commission) {
+          pdf.text(`  Commission: ${proposal.brokerDetails.commission}`, 10, 260);
+        }
+      }
+      pdf.text(`Social Media:`, 10, 270);
+      if (proposal.socialMedia?.linkedin) {
+        pdf.text(`  LinkedIn: ${proposal.socialMedia.linkedin}`, 10, 280);
+      }
+      if (proposal.socialMedia?.instagram) {
+        pdf.text(`  Instagram: ${proposal.socialMedia.instagram}`, 10, 290);
+      }
+      if (proposal.socialMedia?.facebook) {
+        pdf.text(`  Facebook: ${proposal.socialMedia.facebook}`, 10, 300);
+      }
+      pdf.text(`Documents:`, 10, 310);
+      proposal.documents.forEach((doc, docIndex) => {
+        pdf.text(`  ${doc.type}: ${doc.name} (${doc.url})`, 10, 320 + docIndex * 10);
+      });
+      if (proposal.comments) {
+        pdf.text(`Comments: ${proposal.comments}`, 10, 330 + proposal.documents.length * 10);
       }
     });
+    pdf.save('proposals.pdf');
+  };
+
+  const toggleExpandProposal = (id: string) => {
+    setExpandedProposalId(expandedProposalId === id ? null : id);
   };
 
   return (
@@ -253,7 +313,7 @@ function App() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                       <div className="space-y-2">
-                        {(['Pending', 'Accepted', 'Rejected', 'On Hold'] as Status[]).map((status) => (
+                        {(['Accepted', 'Rejected', 'On Hold', 'In Progress'] as Status[]).map((status) => (
                           <label key={status} className="flex items-center">
                             <input
                               type="checkbox"
@@ -332,6 +392,7 @@ function App() {
                 id={`proposal-card-${proposal.id}`}
                 ref={index === currentProposals.length - 1 ? lastProposalElementRef : null}
                 className="bg-white p-4 rounded-lg shadow-md border border-gray-200"
+                onClick={() => toggleExpandProposal(proposal.id)}
               >
                 <div className="flex items-center mb-4">
                   <div className="h-10 w-10 flex-shrink-0">
@@ -341,7 +402,8 @@ function App() {
                   </div>
                   <div className="ml-4">
                     <div className="text-sm font-medium text-gray-900">{proposal.name}</div>
-                    <div className="text-sm text-gray-500">{proposal.email}</div>
+                    <div className="text-sm text-gray-500"><span className="font-bold">Nakshatra:</span> {proposal.nakshatra}</div>
+                    <div className="text-sm text-gray-500"><span className="font-bold">Rashi:</span> {proposal.rashi}</div>
                   </div>
                 </div>
                 <div className="flex items-center mb-2">
@@ -353,50 +415,65 @@ function App() {
                     {proposal.status}
                   </span>
                 </div>
-                <div className="text-sm text-gray-900 mb-2">Age: {proposal.age}</div>
-                <div className="text-sm text-gray-900 mb-2">Occupation: {proposal.occupation}</div>
-                <div className="text-sm text-gray-900 mb-2">Location: {proposal.location}</div>
-                <div className="text-sm text-gray-900 mb-2">Comments: {proposal.comments}</div>
-                <div className="flex items-center space-x-3">
-                  <button
-                    onClick={() => handleStatusChange(proposal.id, 'Accepted')}
-                    className="text-green-600 hover:text-green-900"
-                    title="Accept"
-                  >
-                    <Check className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleStatusChange(proposal.id, 'Rejected')}
-                    className="text-red-600 hover:text-red-900"
-                    title="Reject"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleStatusChange(proposal.id, 'On Hold')}
-                    className="text-yellow-600 hover:text-yellow-900"
-                    title="Put On Hold"
-                  >
-                    <PauseCircle className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      setEditingProposal(proposal);
-                      setShowForm(true);
-                    }}
-                    className="text-blue-600 hover:text-blue-900"
-                    title="Edit"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => exportProposalAsCard(proposal)}
-                    className="text-purple-600 hover:text-purple-900"
-                    title="Export as PDF"
-                  >
-                    <Download className="w-4 h-4" />
-                  </button>
-                </div>
+                <div className="text-sm text-gray-900 mb-2"><span className="font-bold">Date of Birth:</span> {proposal.dobWithTime}</div>
+                <div className="text-sm text-gray-900 mb-2"><span className="font-bold">Age:</span> {proposal.age}</div>
+                <div className="text-sm text-gray-900 mb-2"><span className="font-bold">Occupation:</span> {proposal.occupation}</div>
+                <div className="text-sm text-gray-900 mb-2"><span className="font-bold">Location:</span> {proposal.location}</div>
+                {expandedProposalId === proposal.id && (
+                  <>
+                    <div className="text-sm text-gray-900 mb-2"><span className="font-bold">Income:</span> {proposal.income}</div>
+                    <div className="text-sm text-gray-900 mb-2"><span className="font-bold">Siblings:</span> {proposal.siblings}</div>
+                    <div className="text-sm text-gray-900 mb-2"><span className="font-bold">Source Contact:</span> {proposal.sourceContactName} ({proposal.sourceContactNumber})</div>
+                    <div className="text-sm text-gray-900 mb-2"><span className="font-bold">Comments:</span> {proposal.comments}</div>
+                    <div className="flex items-center space-x-3">
+                      <button
+                        onClick={() => handleStatusChange(proposal.id, 'Accepted')}
+                        className="text-green-600 hover:text-green-900"
+                        title="Accept"
+                      >
+                        <Check className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleStatusChange(proposal.id, 'Rejected')}
+                        className="text-red-600 hover:text-red-900"
+                        title="Reject"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleStatusChange(proposal.id, 'On Hold')}
+                        className="text-yellow-600 hover:text-yellow-900"
+                        title="Put On Hold"
+                      >
+                        <PauseCircle className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleStatusChange(proposal.id, 'In Progress')}
+                        className="text-blue-600 hover:text-blue-900"
+                        title="In Progress"
+                      >
+                        <Clock className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingProposal(proposal);
+                          setShowForm(true);
+                        }}
+                        className="text-blue-600 hover:text-blue-900"
+                        title="Edit"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => exportProposalAsCard(proposal)}
+                        className="text-purple-600 hover:text-purple-900"
+                        title="Export as PDF"
+                      >
+                        <Download className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>

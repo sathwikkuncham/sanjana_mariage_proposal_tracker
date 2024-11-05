@@ -49,4 +49,11 @@ export interface Proposal {
   comments?: string;
   sourceContactName?: string;
   sourceContactNumber?: string;
+  nakshatra?: string;
+  rashi?: string;
+  income?: string;
+  siblings?: string;
+  familyName?: string;
+  kundliChart?: string;
+  dobWithTime?: string;
 }

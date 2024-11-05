@@ -39,7 +39,14 @@ export const initialProposals: Proposal[] = [
         url: 'https://example.com/biodata.pdf',
         name: 'Detailed Biodata'
       }
-    ]
+    ],
+    nakshatra: 'Ashwini',
+    rashi: 'Aries',
+    income: '$100,000',
+    siblings: '1 brother, 1 sister',
+    familyName: 'Johnson',
+    kundliChart: 'https://example.com/kundli-chart.pdf',
+    dobWithTime: '1995-04-15 10:30 AM'
   },
   {
     id: '2',
@@ -80,7 +87,14 @@ export const initialProposals: Proposal[] = [
         url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
         name: 'Profile Photo'
       }
-    ]
+    ],
+    nakshatra: 'Bharani',
+    rashi: 'Taurus',
+    income: '$120,000',
+    siblings: '2 sisters',
+    familyName: 'Chen',
+    kundliChart: 'https://example.com/kundli-chart.pdf',
+    dobWithTime: '1990-08-22 08:45 AM'
   },
   {
     id: '3',
@@ -114,6 +128,13 @@ export const initialProposals: Proposal[] = [
         url: 'https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?auto=format&fit=crop&w=800&q=80',
         name: 'Profile Photo'
       }
-    ]
+    ],
+    nakshatra: 'Krittika',
+    rashi: 'Gemini',
+    income: '$90,000',
+    siblings: '1 brother',
+    familyName: 'Patel',
+    kundliChart: 'https://example.com/kundli-chart.pdf',
+    dobWithTime: '1996-01-10 05:15 PM'
   }
 ];
