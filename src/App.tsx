@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Search, Plus, Filter, ArrowUpDown, Heart, Phone, MessageCircle, Users,
-  Check, X, PauseCircle, Edit2, ChevronLeft, ChevronRight
+  Check, X, PauseCircle, Edit2
 } from 'lucide-react';
 import ProposalForm from './components/ProposalForm';
 import { Proposal, Status, Source } from './types';
@@ -25,6 +25,7 @@ function App() {
   } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const proposalsPerPage = 5;
+  const observer = useRef<IntersectionObserver | null>(null);
 
   const filterProposals = (proposals: Proposal[]) => {
     return proposals.filter(proposal => {
@@ -61,10 +62,7 @@ function App() {
   const filteredAndSortedProposals = sortProposals(filterProposals(proposals));
 
   const indexOfLastProposal = currentPage * proposalsPerPage;
-  const indexOfFirstProposal = indexOfLastProposal - proposalsPerPage;
-  const currentProposals = filteredAndSortedProposals.slice(indexOfFirstProposal, indexOfLastProposal);
-
-  const totalPages = Math.ceil(filteredAndSortedProposals.length / proposalsPerPage);
+  const currentProposals = filteredAndSortedProposals.slice(0, indexOfLastProposal);
 
   const handleStatusChange = (id: string, status: Status) => {
     setProposals(proposals.map(p => 
@@ -110,11 +108,15 @@ function App() {
     }));
   };
 
-  const handlePageChange = (newPage: number) => {
-    if (newPage > 0 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-    }
-  };
+  const lastProposalElementRef = useCallback(node => {
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        setCurrentPage(prevPage => prevPage + 1);
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -122,9 +124,9 @@ function App() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
           {/* Header */}
           <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
               <h1 className="text-2xl font-semibold text-gray-900">Sanjana Marriage Proposal Tracker</h1>
-              <div className="flex items-center space-x-4">
+              <div className="mt-4 md:mt-0 flex items-center space-x-4">
                 <button
                   onClick={() => setShowForm(true)}
                   className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors"
@@ -137,7 +139,7 @@ function App() {
             
             {/* Search and Filters */}
             <div className="mt-4 space-y-4">
-              <div className="flex gap-4">
+              <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
@@ -162,7 +164,7 @@ function App() {
               {/* Filter Panel */}
               {showFilters && (
                 <div className="p-4 bg-gray-50 rounded-md space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                       <div className="space-y-2">
@@ -237,126 +239,73 @@ function App() {
             </div>
           </div>
 
-          {/* Table */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  {[
-                    { key: 'name', label: 'Name' },
-                    { key: 'source', label: 'Source' },
-                    { key: 'status', label: 'Status' },
-                    { key: 'age', label: 'Age' },
-                    { key: 'occupation', label: 'Occupation' },
-                    { key: 'location', label: 'Location' },
-                    { key: 'comments', label: 'Comments' } // Add Comments column
-                  ].map(({ key, label }) => (
-                    <th
-                      key={key}
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                      onClick={() => handleSort(key as keyof Proposal)}
-                    >
-                      <div className="flex items-center space-x-1">
-                        <span>{label}</span>
-                        <ArrowUpDown className="w-4 h-4" />
-                      </div>
-                    </th>
-                  ))}
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {currentProposals.map((proposal) => (
-                  <tr key={proposal.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="h-10 w-10 flex-shrink-0">
-                          <div className="h-10 w-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white font-medium">
-                            {proposal.name.charAt(0)}
-                          </div>
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{proposal.name}</div>
-                          <div className="text-sm text-gray-500">{proposal.email}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        {getSourceIcon(proposal.source)}
-                        <span className="ml-2 text-sm text-gray-900">{proposal.source}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(proposal.status)}`}>
-                        {proposal.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{proposal.age}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{proposal.occupation}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{proposal.location}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{proposal.comments}</td> {/* Add Comments data */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-3">
-                        <button
-                          onClick={() => handleStatusChange(proposal.id, 'Accepted')}
-                          className="text-green-600 hover:text-green-900"
-                          title="Accept"
-                        >
-                          <Check className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleStatusChange(proposal.id, 'Rejected')}
-                          className="text-red-600 hover:text-red-900"
-                          title="Reject"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleStatusChange(proposal.id, 'On Hold')}
-                          className="text-yellow-600 hover:text-yellow-900"
-                          title="Put On Hold"
-                        >
-                          <PauseCircle className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setEditingProposal(proposal);
-                            setShowForm(true);
-                          }}
-                          className="text-blue-600 hover:text-blue-900"
-                          title="Edit"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {/* Pagination Controls */}
-          <div className="flex justify-between items-center p-4">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="px-4 py-2 bg-gray-200 rounded-md text-gray-700 hover:bg-gray-300 disabled:opacity-50"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <span className="text-sm text-gray-700">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-gray-200 rounded-md text-gray-700 hover:bg-gray-300 disabled:opacity-50"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
+          {/* Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+            {currentProposals.map((proposal, index) => (
+              <div
+                key={proposal.id}
+                ref={index === currentProposals.length - 1 ? lastProposalElementRef : null}
+                className="bg-white p-4 rounded-lg shadow-md border border-gray-200"
+              >
+                <div className="flex items-center mb-4">
+                  <div className="h-10 w-10 flex-shrink-0">
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white font-medium">
+                      {proposal.name.charAt(0)}
+                    </div>
+                  </div>
+                  <div className="ml-4">
+                    <div className="text-sm font-medium text-gray-900">{proposal.name}</div>
+                    <div className="text-sm text-gray-500">{proposal.email}</div>
+                  </div>
+                </div>
+                <div className="flex items-center mb-2">
+                  {getSourceIcon(proposal.source)}
+                  <span className="ml-2 text-sm text-gray-900">{proposal.source}</span>
+                </div>
+                <div className="mb-2">
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(proposal.status)}`}>
+                    {proposal.status}
+                  </span>
+                </div>
+                <div className="text-sm text-gray-900 mb-2">Age: {proposal.age}</div>
+                <div className="text-sm text-gray-900 mb-2">Occupation: {proposal.occupation}</div>
+                <div className="text-sm text-gray-900 mb-2">Location: {proposal.location}</div>
+                <div className="text-sm text-gray-900 mb-2">Comments: {proposal.comments}</div>
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={() => handleStatusChange(proposal.id, 'Accepted')}
+                    className="text-green-600 hover:text-green-900"
+                    title="Accept"
+                  >
+                    <Check className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange(proposal.id, 'Rejected')}
+                    className="text-red-600 hover:text-red-900"
+                    title="Reject"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange(proposal.id, 'On Hold')}
+                    className="text-yellow-600 hover:text-yellow-900"
+                    title="Put On Hold"
+                  >
+                    <PauseCircle className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditingProposal(proposal);
+                      setShowForm(true);
+                    }}
+                    className="text-blue-600 hover:text-blue-900"
+                    title="Edit"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
