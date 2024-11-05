@@ -47,4 +47,6 @@ export interface Proposal {
   socialMedia?: SocialMedia;
   documents: Document[];
   comments?: string;
+  sourceContactName?: string;
+  sourceContactNumber?: string;
 }

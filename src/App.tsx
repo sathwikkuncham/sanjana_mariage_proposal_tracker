@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Search, Plus, Filter, ArrowUpDown, Heart, Phone, MessageCircle, Users,
-  Check, X, PauseCircle, Edit2
+  Check, X, PauseCircle, Edit2, Download
 } from 'lucide-react';
 import ProposalForm from './components/ProposalForm';
 import { Proposal, Status, Source } from './types';
 import { initialProposals } from './data';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 function App() {
   const [proposals, setProposals] = useState<Proposal[]>(initialProposals);
@@ -118,6 +120,83 @@ function App() {
     if (node) observer.current.observe(node);
   }, []);
 
+  const exportProposalAsCard = (proposal: Proposal) => {
+    const pdf = new jsPDF();
+    pdf.setFontSize(12);
+    pdf.text(`Name: ${proposal.name}`, 10, 10);
+    pdf.text(`Email: ${proposal.email}`, 10, 20);
+    pdf.text(`Age: ${proposal.age}`, 10, 30);
+    pdf.text(`Occupation: ${proposal.occupation}`, 10, 40);
+    pdf.text(`Location: ${proposal.location}`, 10, 50);
+    pdf.text(`Source: ${proposal.source}`, 10, 60);
+    pdf.text(`Status: ${proposal.status}`, 10, 70);
+    pdf.text(`Notes: ${proposal.notes}`, 10, 80);
+    pdf.text(`Expectations: ${proposal.expectations}`, 10, 90);
+    pdf.text(`Family Background: ${proposal.familyBackground}`, 10, 100);
+    pdf.text(`Education: ${proposal.education}`, 10, 110);
+    pdf.text(`Contact Info: ${proposal.contactInfo}`, 10, 120);
+    if (proposal.alternateContact) {
+      pdf.text(`Alternate Contact: ${proposal.alternateContact}`, 10, 130);
+    }
+    if (proposal.sourceContactName) {
+      pdf.text(`Source Contact Name: ${proposal.sourceContactName}`, 10, 140);
+    }
+    if (proposal.sourceContactNumber) {
+      pdf.text(`Source Contact Number: ${proposal.sourceContactNumber}`, 10, 150);
+    }
+    pdf.text(`Parent Details:`, 10, 160);
+    pdf.text(`  Father's Name: ${proposal.parentDetails.fatherName}`, 10, 170);
+    pdf.text(`  Father's Occupation: ${proposal.parentDetails.fatherOccupation}`, 10, 180);
+    pdf.text(`  Mother's Name: ${proposal.parentDetails.motherName}`, 10, 190);
+    pdf.text(`  Mother's Occupation: ${proposal.parentDetails.motherOccupation}`, 10, 200);
+    if (proposal.brokerDetails) {
+      pdf.text(`Broker Details:`, 10, 210);
+      pdf.text(`  Name: ${proposal.brokerDetails.name}`, 10, 220);
+      pdf.text(`  Contact Number: ${proposal.brokerDetails.contactNumber}`, 10, 230);
+      if (proposal.brokerDetails.agency) {
+        pdf.text(`  Agency: ${proposal.brokerDetails.agency}`, 10, 240);
+      }
+      if (proposal.brokerDetails.commission) {
+        pdf.text(`  Commission: ${proposal.brokerDetails.commission}`, 10, 250);
+      }
+    }
+    pdf.text(`Social Media:`, 10, 260);
+    if (proposal.socialMedia?.linkedin) {
+      pdf.text(`  LinkedIn: ${proposal.socialMedia.linkedin}`, 10, 270);
+    }
+    if (proposal.socialMedia?.instagram) {
+      pdf.text(`  Instagram: ${proposal.socialMedia.instagram}`, 10, 280);
+    }
+    if (proposal.socialMedia?.facebook) {
+      pdf.text(`  Facebook: ${proposal.socialMedia.facebook}`, 10, 290);
+    }
+    pdf.text(`Documents:`, 10, 300);
+    proposal.documents.forEach((doc, index) => {
+      pdf.text(`  ${doc.type}: ${doc.name} (${doc.url})`, 10, 310 + index * 10);
+    });
+    if (proposal.comments) {
+      pdf.text(`Comments: ${proposal.comments}`, 10, 320 + proposal.documents.length * 10);
+    }
+    pdf.save(`${proposal.name}_proposal.pdf`);
+  };
+
+  const exportAllProposalsAsPDF = () => {
+    const pdf = new jsPDF();
+    filteredAndSortedProposals.forEach((proposal, index) => {
+      const element = document.getElementById(`proposal-card-${proposal.id}`);
+      if (element) {
+        html2canvas(element).then(canvas => {
+          const imgData = canvas.toDataURL('image/png');
+          if (index > 0) pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 10, 10);
+          if (index === filteredAndSortedProposals.length - 1) {
+            pdf.save('proposals.pdf');
+          }
+        });
+      }
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -133,6 +212,12 @@ function App() {
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Add Proposal
+                </button>
+                <button
+                  onClick={exportAllProposalsAsPDF}
+                  className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors"
+                >
+                  Export All as PDF
                 </button>
               </div>
             </div>
@@ -244,6 +329,7 @@ function App() {
             {currentProposals.map((proposal, index) => (
               <div
                 key={proposal.id}
+                id={`proposal-card-${proposal.id}`}
                 ref={index === currentProposals.length - 1 ? lastProposalElementRef : null}
                 className="bg-white p-4 rounded-lg shadow-md border border-gray-200"
               >
@@ -302,6 +388,13 @@ function App() {
                     title="Edit"
                   >
                     <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => exportProposalAsCard(proposal)}
+                    className="text-purple-600 hover:text-purple-900"
+                    title="Export as PDF"
+                  >
+                    <Download className="w-4 h-4" />
                   </button>
                 </div>
               </div>

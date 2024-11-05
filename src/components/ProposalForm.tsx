@@ -39,7 +39,9 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onClose, onSubmit, proposal
     },
     socialMedia: {},
     documents: [],
-    comments: ''
+    comments: '',
+    sourceContactName: '',
+    sourceContactNumber: ''
   });
 
   useEffect(() => {
@@ -179,6 +181,27 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onClose, onSubmit, proposal
                     onChange={handleChange}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                     required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Source Contact Name</label>
+                  <input
+                    type="text"
+                    name="sourceContactName"
+                    value={formData.sourceContactName}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Source Contact Number</label>
+                  <input
+                    type="text"
+                    name="sourceContactNumber"
+                    value={formData.sourceContactNumber}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                   />
                 </div>
               </div>
