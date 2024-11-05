@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search, Plus, Filter, ArrowUpDown, Heart, Phone, MessageCircle, Users,
-  Check, X, PauseCircle, Edit2
+  Check, X, PauseCircle, Edit2, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import ProposalForm from './components/ProposalForm';
 import { Proposal, Status, Source } from './types';
 import { initialProposals } from './data';
+
+const users = ['Sathwik', 'Sanjana', 'Anil', 'Bindu'];
 
 function App() {
   const [proposals, setProposals] = useState<Proposal[]>(initialProposals);
@@ -23,6 +25,13 @@ function App() {
     key: keyof Proposal;
     direction: 'asc' | 'desc';
   } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const proposalsPerPage = 5;
+
+  useEffect(() => {
+    setCurrentUser('Sanjana'); // Set a default user or handle it as needed
+  }, []);
 
   const filterProposals = (proposals: Proposal[]) => {
     return proposals.filter(proposal => {
@@ -49,7 +58,7 @@ function App() {
       if (a[sortConfig.key] < b[sortConfig.key]) {
         return sortConfig.direction === 'asc' ? -1 : 1;
       }
-      if (a[sortConfig.key] > b[sortConfig.key]) {
+      if (sortConfig && a[sortConfig.key] > b[sortConfig.key]) {
         return sortConfig.direction === 'asc' ? 1 : -1;
       }
       return 0;
@@ -58,9 +67,15 @@ function App() {
 
   const filteredAndSortedProposals = sortProposals(filterProposals(proposals));
 
+  const indexOfLastProposal = currentPage * proposalsPerPage;
+  const indexOfFirstProposal = indexOfLastProposal - proposalsPerPage;
+  const currentProposals = filteredAndSortedProposals.slice(indexOfFirstProposal, indexOfLastProposal);
+
+  const totalPages = Math.ceil(filteredAndSortedProposals.length / proposalsPerPage);
+
   const handleStatusChange = (id: string, status: Status) => {
     setProposals(proposals.map(p => 
-      p.id === id ? { ...p, status } : p
+      p.id === id ? { ...p, status: { ...p.status, [currentUser]: status } } : p
     ));
   };
 
@@ -102,6 +117,12 @@ function App() {
     }));
   };
 
+  const handlePageChange = (newPage: number) => {
+    if (newPage > 0 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -109,14 +130,17 @@ function App() {
           {/* Header */}
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-semibold text-gray-900">Marriage Proposal Tracker</h1>
-              <button
-                onClick={() => setShowForm(true)}
-                className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Proposal
-              </button>
+              <h1 className="text-2xl font-semibold text-gray-900">Sanjana Marriage Proposal Tracker</h1>
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-gray-700">Logged in as: {currentUser}</span>
+                <button
+                  onClick={() => setShowForm(true)}
+                  className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Proposal
+                </button>
+              </div>
             </div>
             
             {/* Search and Filters */}
@@ -251,7 +275,7 @@ function App() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredAndSortedProposals.map((proposal) => (
+                {currentProposals.map((proposal) => (
                   <tr key={proposal.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -273,8 +297,8 @@ function App() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(proposal.status)}`}>
-                        {proposal.status}
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(proposal.status[currentUser])}`}>
+                        {proposal.status[currentUser]}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{proposal.age}</td>
@@ -319,6 +343,26 @@ function App() {
                 ))}
               </tbody>
             </table>
+          </div>
+          {/* Pagination Controls */}
+          <div className="flex justify-between items-center p-4">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-4 py-2 bg-gray-200 rounded-md text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="text-sm text-gray-700">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 bg-gray-200 rounded-md text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>
