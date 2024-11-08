@@ -4,12 +4,15 @@ import {
   Check, X, PauseCircle, Edit2, Download, Clock
 } from 'lucide-react';
 import ProposalForm from './components/ProposalForm';
+import ThemeToggle from './components/ThemeToggle';
+import { useTheme } from './hooks/useTheme';
 import { Proposal, Status, Source } from './types';
 import { initialProposals } from './data';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
 function App() {
+  const { isDark, setIsDark } = useTheme();
   const [proposals, setProposals] = useState<Proposal[]>(initialProposals);
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -97,11 +100,11 @@ function App() {
 
   const getStatusColor = (status: Status) => {
     switch (status) {
-      case 'In Progress': return 'bg-blue-100 text-blue-800';
-      case 'Accepted': return 'bg-green-100 text-green-800';
-      case 'Rejected': return 'bg-red-100 text-red-800';
-      case 'On Hold': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'In Progress': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'Accepted': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'Rejected': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'On Hold': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
     }
   };
 
@@ -258,14 +261,24 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           {/* Header */}
-          <div className="p-6 border-b border-gray-200">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
-              <h1 className="text-2xl font-semibold text-gray-900">Sanjana Marriage Proposal Tracker</h1>
+              <div className="flex items-center justify-between w-full md:w-auto">
+                <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+                  Sanjana Marriage Proposal Tracker
+                </h1>
+                <div className="md:hidden">
+                  <ThemeToggle isDark={isDark} onToggle={() => setIsDark(!isDark)} />
+                </div>
+              </div>
               <div className="mt-4 md:mt-0 flex items-center space-x-4">
+                <div className="hidden md:block">
+                  <ThemeToggle isDark={isDark} onToggle={() => setIsDark(!isDark)} />
+                </div>
                 <button
                   onClick={() => setShowForm(true)}
                   className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors"
@@ -277,6 +290,7 @@ function App() {
                   onClick={exportAllProposalsAsPDF}
                   className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors"
                 >
+                  <Download className="w-4 h-4 mr-2" />
                   Export All as PDF
                 </button>
               </div>
@@ -292,13 +306,15 @@ function App() {
                     placeholder="Search proposals..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   />
                 </div>
                 <button
                   onClick={() => setShowFilters(!showFilters)}
                   className={`inline-flex items-center px-4 py-2 border rounded-md text-sm font-medium ${
-                    showFilters ? 'bg-indigo-50 border-indigo-300 text-indigo-700' : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+                    showFilters 
+                      ? 'bg-indigo-50 dark:bg-indigo-900 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-200' 
+                      : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
                   }`}
                 >
                   <Filter className="w-4 h-4 mr-2" />
@@ -308,10 +324,10 @@ function App() {
 
               {/* Filter Panel */}
               {showFilters && (
-                <div className="p-4 bg-gray-50 rounded-md space-y-4">
+                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-md space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Status</label>
                       <div className="space-y-2">
                         {(['Accepted', 'Rejected', 'On Hold', 'In Progress'] as Status[]).map((status) => (
                           <label key={status} className="flex items-center">
@@ -328,14 +344,14 @@ function App() {
                               }}
                               className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                             />
-                            <span className="ml-2 text-sm text-gray-600">{status}</span>
+                            <span className="ml-2 text-sm text-gray-600 dark:text-gray-300">{status}</span>
                           </label>
                         ))}
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Source</label>
                       <div className="space-y-2">
                         {(['WhatsApp', 'Phone', 'Broker', 'Relative'] as Source[]).map((source) => (
                           <label key={source} className="flex items-center">
@@ -352,29 +368,29 @@ function App() {
                               }}
                               className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                             />
-                            <span className="ml-2 text-sm text-gray-600">{source}</span>
+                            <span className="ml-2 text-sm text-gray-600 dark:text-gray-300">{source}</span>
                           </label>
                         ))}
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Age Range</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Age Range</label>
                       <div className="flex items-center space-x-2">
                         <input
                           type="number"
                           placeholder="Min"
                           value={filters.minAge}
                           onChange={(e) => setFilters(prev => ({ ...prev, minAge: e.target.value }))}
-                          className="w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                          className="w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         />
-                        <span className="text-gray-500">to</span>
+                        <span className="text-gray-500 dark:text-gray-400">to</span>
                         <input
                           type="number"
                           placeholder="Max"
                           value={filters.maxAge}
                           onChange={(e) => setFilters(prev => ({ ...prev, maxAge: e.target.value }))}
-                          className="w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                          className="w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         />
                       </div>
                     </div>
@@ -391,7 +407,7 @@ function App() {
                 key={proposal.id}
                 id={`proposal-card-${proposal.id}`}
                 ref={index === currentProposals.length - 1 ? lastProposalElementRef : null}
-                className="bg-white p-4 rounded-lg shadow-md border border-gray-200"
+                className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-700"
                 onClick={() => toggleExpandProposal(proposal.id)}
               >
                 <div className="flex items-center mb-4">
@@ -401,72 +417,108 @@ function App() {
                     </div>
                   </div>
                   <div className="ml-4">
-                    <div className="text-sm font-medium text-gray-900">{proposal.name}</div>
-                    <div className="text-sm text-gray-500"><span className="font-bold">Nakshatra:</span> {proposal.nakshatra}</div>
-                    <div className="text-sm text-gray-500"><span className="font-bold">Rashi:</span> {proposal.rashi}</div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">{proposal.name}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      <span className="font-bold">Nakshatra:</span> {proposal.nakshatra}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      <span className="font-bold">Rashi:</span> {proposal.rashi}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center mb-2">
                   {getSourceIcon(proposal.source)}
-                  <span className="ml-2 text-sm text-gray-900">{proposal.source}</span>
+                  <span className="ml-2 text-sm text-gray-900 dark:text-white">{proposal.source}</span>
                 </div>
                 <div className="mb-2">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(proposal.status)}`}>
                     {proposal.status}
                   </span>
                 </div>
-                <div className="text-sm text-gray-900 mb-2"><span className="font-bold">Date of Birth:</span> {proposal.dobWithTime}</div>
-                <div className="text-sm text-gray-900 mb-2"><span className="font-bold">Age:</span> {proposal.age}</div>
-                <div className="text-sm text-gray-900 mb-2"><span className="font-bold">Occupation:</span> {proposal.occupation}</div>
-                <div className="text-sm text-gray-900 mb-2"><span className="font-bold">Location:</span> {proposal.location}</div>
+                <div className="text-sm text-gray-900 dark:text-white mb-2">
+                  <span className="font-bold">Date of Birth:</span> {proposal.dobWithTime}
+                </div>
+                <div className="text-sm text-gray-900 dark:text-white mb-2">
+                  <span className="font-bold">Age:</span> {proposal.age}
+                </div>
+                <div className="text-sm text-gray-900 dark:text-white mb-2">
+                  <span className="font-bold">Occupation:</span> {proposal.occupation}
+                </div>
+                <div className="text-sm text-gray-900 dark:text-white mb-2">
+                  <span className="font-bold">Location:</span> {proposal.location}
+                </div>
                 {expandedProposalId === proposal.id && (
                   <>
-                    <div className="text-sm text-gray-900 mb-2"><span className="font-bold">Income:</span> {proposal.income}</div>
-                    <div className="text-sm text-gray-900 mb-2"><span className="font-bold">Siblings:</span> {proposal.siblings}</div>
-                    <div className="text-sm text-gray-900 mb-2"><span className="font-bold">Source Contact:</span> {proposal.sourceContactName} ({proposal.sourceContactNumber})</div>
-                    <div className="text-sm text-gray-900 mb-2"><span className="font-bold">Comments:</span> {proposal.comments}</div>
+                    <div className="text-sm text-gray-900 dark:text-white mb-2">
+                      <span className="font-bold">Income:</span> {proposal.income}
+                    </div>
+                    <div className="text-sm text-gray-900 dark:text-white mb-2">
+                      <span className="font-bold">Siblings:</span> {proposal.siblings}
+                    </div>
+                    <div className="text-sm text-gray-900 dark:text-white mb-2">
+                      <span className="font-bold">Source Contact:</span> {proposal.sourceContactName} ({proposal.sourceContactNumber})
+                    </div>
+                    <div className="text-sm text-gray-900 dark:text-white mb-2">
+                      <span className="font-bold">Comments:</span> {proposal.comments}
+                    </div>
                     <div className="flex items-center space-x-3">
                       <button
-                        onClick={() => handleStatusChange(proposal.id, 'Accepted')}
-                        className="text-green-600 hover:text-green-900"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStatusChange(proposal.id, 'Accepted');
+                        }}
+                        className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300"
                         title="Accept"
                       >
                         <Check className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleStatusChange(proposal.id, 'Rejected')}
-                        className="text-red-600 hover:text-red-900"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStatusChange(proposal.id, 'Rejected');
+                        }}
+                        className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
                         title="Reject"
                       >
                         <X className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleStatusChange(proposal.id, 'On Hold')}
-                        className="text-yellow-600 hover:text-yellow-900"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStatusChange(proposal.id, 'On Hold');
+                        }}
+                        className="text-yellow-600 dark:text-yellow-400 hover:text-yellow-900 dark:hover:text-yellow-300"
                         title="Put On Hold"
                       >
                         <PauseCircle className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleStatusChange(proposal.id, 'In Progress')}
-                        className="text-blue-600 hover:text-blue-900"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStatusChange(proposal.id, 'In Progress');
+                        }}
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                         title="In Progress"
                       >
                         <Clock className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setEditingProposal(proposal);
                           setShowForm(true);
                         }}
-                        className="text-blue-600 hover:text-blue-900"
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                         title="Edit"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => exportProposalAsCard(proposal)}
-                        className="text-purple-600 hover:text-purple-900"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          exportProposalAsCard(proposal);
+                        }}
+                        className="text-purple-600 dark:text-purple-400 hover:text-purple-900 dark:hover:text-purple-300"
                         title="Export as PDF"
                       >
                         <Download className="w-4 h-4" />
