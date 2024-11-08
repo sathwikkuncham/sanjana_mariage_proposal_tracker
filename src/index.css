@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Theme transition */
+* {
+  @apply transition-colors duration-200;
+}
+
+/* Dark mode styles */
+.dark {
+  @apply bg-gray-900 text-gray-100;
+}
+
+/* Light mode styles */
+:root {
+  @apply bg-gray-50 text-gray-900;
+}
